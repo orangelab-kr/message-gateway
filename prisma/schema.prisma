@@ -1,0 +1,80 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+model TemplateModel {
+  templateId String @id @default(uuid())
+
+  name        String
+  description String  @default("")
+  message     String? @db.LongText
+
+  alimtalkId String?
+  alimtalk   AlimtalkModel? @relation(fields: [alimtalkId], references: [alimtalkId])
+
+  providerId String
+  provider   ProviderModel @relation(fields: [providerId], references: [providerId])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model AlimtalkModel {
+  alimtalkId String @id @default(uuid())
+
+  message  String                @db.LongText
+  buttons  AlimtalkButtonModel[]
+  template TemplateModel?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+}
+
+enum AlimtalkButtonType {
+  Delivery
+  Weblink
+  Applink
+  Keyword
+  Forward
+}
+
+model AlimtalkButtonModel {
+  alimtalkButtonId String @id @default(uuid())
+
+  name String
+  type AlimtalkButtonType
+
+  alimtalk   AlimtalkModel @relation(fields: [alimtalkId], references: [alimtalkId])
+  alimtalkId String
+
+  properties Json
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+}
+
+enum ProviderType {
+  Aligo
+}
+
+model ProviderModel {
+  providerId String @id @default(uuid())
+
+  name         String
+  providerType ProviderType
+  templates    TemplateModel[]
+
+  properties Json
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+}

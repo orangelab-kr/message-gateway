@@ -1,10 +1,5 @@
-import { Prisma } from '@prisma/client';
 import express from 'express';
-import { logger } from '.';
-import { Template } from './controllers';
-import { Provider } from './controllers/providers';
-import { getRouter } from './routes';
-import { Database } from './tools';
+import { Database, getRouter, logger } from '.';
 
 export * from './routes';
 export * from './tools';

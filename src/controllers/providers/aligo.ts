@@ -1,10 +1,10 @@
 import {
   AlimtalkButtonModel,
   AlimtalkButtonType,
-  Prisma,
+  Prisma
 } from '@prisma/client';
 import got, { Agents, Got } from 'got';
-import { HttpsProxyAgent } from 'hpagent';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import { ProviderInterface, TemplateIncluded } from '..';
 
 export type AligoButtonType = 'DS' | 'WL' | 'AL' | 'BK' | 'MD';
@@ -32,6 +32,36 @@ export interface AligoButton {
   linkAnd?: string;
 }
 
+export interface AligoKakaoResult {
+  code: number;
+  message: string;
+  info?: {
+    type: string;
+    mid: number;
+    current: string;
+    unit: number;
+    total: number;
+    scnt: number;
+    fcnt: number;
+  };
+}
+
+export interface AligoKakaoTokenResult {
+  code: number;
+  message: string;
+  token?: string;
+  urlencode?: string;
+}
+
+export interface AligoSMSResult {
+  result_code: number;
+  message: string;
+  msg_id: number;
+  success_cnt: number;
+  error_cnt: number;
+  msg_type: string;
+}
+
 export class AligoProvider implements ProviderInterface {
   private apiKey: string;
   private userId: string;
@@ -40,6 +70,9 @@ export class AligoProvider implements ProviderInterface {
   private proxy: string | null;
   private token: string | null = null;
   private got: Got;
+
+  private smsEndpoint = 'https://apis.aligo.in';
+  private kakaoEndpoint = 'https://kakaoapi.aligo.in/akv10';
   public static AligoButtonType: {
     [key: string]: {
       linkType: AligoButtonType;
@@ -62,39 +95,31 @@ export class AligoProvider implements ProviderInterface {
     this.senderKey = props.senderKey;
     this.sender = props.sender;
     this.proxy = props.proxy;
-
-    let agent: Agents | undefined;
-    if (this.proxy) {
-      agent = {
-        https: new HttpsProxyAgent({
-          keepAlive: true,
-          keepAliveMsecs: 1000,
-          maxSockets: 256,
-          maxFreeSockets: 256,
-          scheduling: 'lifo',
-          proxy: this.proxy,
-        }),
-      };
-    }
-
     this.got = got.extend({
-      prefixUrl: 'https://kakaoapi.aligo.in/akv10/',
-      agent,
+      headers: { 'User-Agent': 'Message Gateway' },
+      agent: this.getProxyAgentForGot(),
     });
+  }
+
+  private getProxyAgentForGot(): Agents | undefined {
+    if (!this.proxy) return;
+    return {
+      http: new HttpProxyAgent({
+        proxy: this.proxy,
+      }),
+      https: new HttpsProxyAgent({
+        proxy: this.proxy,
+      }),
+    };
   }
 
   private async getToken(expiry = 1): Promise<string | null> {
     if (this.token) return this.token;
     const res = await this.got({
       method: 'POST',
-      url: `token/create/${expiry}/h`,
+      url: `${this.kakaoEndpoint}/token/create/${expiry}/h`,
       form: { apikey: this.apiKey, userid: this.userId },
-    }).json<{
-      code: number;
-      message: string;
-      token?: string;
-      urlencode?: string;
-    }>();
+    }).json<AligoKakaoTokenResult>();
 
     if (res.code !== 0) throw Error(`오류가 발생하였습니다.`);
     if (!res.token) throw Error('서버에서 토큰을 반환하지 않았습니다.');
@@ -103,7 +128,9 @@ export class AligoProvider implements ProviderInterface {
     return this.token;
   }
 
-  private static transferButton(buttons: AlimtalkButtonModel[]): AligoButton[] {
+  private static transferButtons(
+    buttons: AlimtalkButtonModel[]
+  ): AligoButton[] {
     const changeToButtonLink = (
       properties: Prisma.JsonValue
     ): AligoButtonLink => <AligoButtonLink>properties;
@@ -119,7 +146,82 @@ export class AligoProvider implements ProviderInterface {
     phone: string;
     template: TemplateIncluded;
   }): Promise<boolean> {
-    console.log(JSON.stringify(props, null, 2));
-    return true;
+    return props.template.alimtalk
+      ? this.sendMessageWithAlimtalk(props)
+      : this.sendMessageWithSMS(props);
+  }
+
+  private async sendMessageWithAlimtalk(props: {
+    phone: string;
+    template: TemplateIncluded;
+  }): Promise<boolean> {
+    const { template } = props;
+    if (!template.alimtalk) return false;
+    const { alimtalk, message } = template;
+
+    await this.getToken();
+    const subject = '메세지가 도착했습니다.';
+    const hasFailover = message ? 'Y' : 'N';
+    const phone = `0${props.phone.substr(3)}`;
+    const button = JSON.stringify({
+      button: AligoProvider.transferButtons(alimtalk.buttons),
+    });
+
+    const res = await this.got({
+      method: 'POST',
+      url: `${this.kakaoEndpoint}/alimtalk/send`,
+      form: {
+        // Credentials
+        apikey: this.apiKey,
+        userid: this.userId,
+        token: this.token,
+        senderkey: this.senderKey,
+        sender: this.sender,
+
+        // Subjects
+        subject_1: subject,
+        fsubject_1: subject,
+
+        // Messages
+        fmessage_1: message,
+        message_1: alimtalk.message,
+
+        receiver_1: phone,
+        button_1: button,
+        tpl_code: 'TE_9778',
+
+        // Options
+        failover: hasFailover,
+        testmode_yn: 'N',
+      },
+    }).json<AligoKakaoResult>();
+    return res.code === 0;
+  }
+
+  private async sendMessageWithSMS(props: {
+    phone: string;
+    template: TemplateIncluded;
+  }): Promise<boolean> {
+    const { template } = props;
+    if (!template.message) return false;
+    const phone = `0${props.phone.substr(3)}`;
+    const res = await this.got({
+      method: 'POST',
+      url: `${this.smsEndpoint}/send`,
+      form: {
+        // Credentials
+        key: this.apiKey,
+        user_id: this.userId,
+        sender: this.sender,
+
+        // SMS
+        receiver: phone,
+        msg: template.message,
+
+        // Options
+        testmode_yn: 'N',
+      },
+    }).json<AligoSMSResult>();
+    return res.result_code === 0;
   }
 }

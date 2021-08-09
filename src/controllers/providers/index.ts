@@ -37,15 +37,14 @@ export class Provider {
     template: TemplateIncluded;
   }): Promise<void> {
     const { fields, template, phone } = props;
-    const { alimtalk, provider } = template;
+    const { alimtalk, provider, message } = template;
     const providerClass = this.getProviderClass(provider);
 
-    if (template.message) {
-      template.message = await liquid.parseAndRender(template.message, fields);
+    if (message) {
+      template.message = await liquid.parseAndRender(message, fields);
     }
 
     if (alimtalk) {
-      console.log('hi');
       alimtalk.buttons = this.renderButtons(alimtalk.buttons, fields);
       alimtalk.message = await liquid.parseAndRender(alimtalk.message, fields);
     }

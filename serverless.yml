@@ -1,0 +1,37 @@
+service: 'message-gateway'
+useDotenv: false
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ap-northeast-2
+  stage: ${opt:stage, 'dev'}
+  lambdaHashingVersion: '20201221'
+  apiGateway:
+    shouldStartNameWithService: true
+
+package:
+  individually: true
+
+plugins:
+  - serverless-webpack
+  - serverless-dotenv-plugin
+  - serverless-offline
+
+custom:
+  webpack:
+    includeModules: true
+    packager: 'yarn'
+    packagerOptions:
+      noFrozenLockfile: true
+      scripts:
+        - prisma generate
+  serverless-offline:
+    noPrependStageInUrl: true
+
+functions:
+  app:
+    handler: src/index.handler
+    events:
+      - http: 'ANY /'
+      - http: 'ANY /{proxy+}'

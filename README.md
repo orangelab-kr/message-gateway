@@ -1,1 +1,1 @@
-# TypeScript Template
+# Message Gateway

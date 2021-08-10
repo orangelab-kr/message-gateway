@@ -3,8 +3,11 @@ import {
   ProviderModel,
   ProviderType,
 } from '@prisma/client';
+import Joi from 'joi';
 import { Liquid } from 'liquidjs';
 import { AligoProvider, TemplateIncluded } from '..';
+import { InternalError } from '../../tools';
+import { Template } from '../template';
 
 export * from './aligo';
 
@@ -33,10 +36,19 @@ export class Provider {
 
   public static async sendMessage(props: {
     phone: string;
+    name: string;
     fields: any;
-    template: TemplateIncluded;
   }): Promise<void> {
-    const { fields, template, phone } = props;
+    const schema = Joi.object({
+      phone: Joi.string()
+        .regex(/^\+.*$/)
+        .required(),
+      name: Joi.string().required(),
+      fields: Joi.object(),
+    });
+
+    const { fields, name, phone } = await schema.validateAsync(props);
+    const template = await Template.getTemplateByNameOrThrow(name);
     const { alimtalk, provider, message } = template;
     const providerClass = this.getProviderClass(provider);
 
@@ -49,7 +61,8 @@ export class Provider {
       alimtalk.message = await liquid.parseAndRender(alimtalk.message, fields);
     }
 
-    await providerClass.sendMessage({ phone, template });
+    const isSuccess = providerClass.sendMessage({ phone, template });
+    if (!isSuccess) throw new InternalError('메시지를 전송하지 못했습니다.');
   }
 
   private static renderButtons(

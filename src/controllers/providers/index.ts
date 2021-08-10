@@ -5,9 +5,12 @@ import {
 } from '@prisma/client';
 import Joi from 'joi';
 import { Liquid } from 'liquidjs';
-import { AligoProvider, TemplateIncluded } from '..';
-import { InternalError } from '../../tools';
-import { Template } from '../template';
+import {
+  AligoProvider,
+  InternalError,
+  Template,
+  TemplateIncluded,
+} from '../..';
 
 export * from './aligo';
 

@@ -1,8 +1,14 @@
-import express, { Router } from 'express';
-import { getSendRouter } from '.';
-import os from 'os';
+import express from 'express';
 import morgan from 'morgan';
-import { InternalError, logger, OPCODE, Wrapper } from '../tools';
+import os from 'os';
+import {
+  AccessKeyMiddleware,
+  getSendRouter,
+  InternalError,
+  logger,
+  OPCODE,
+  Wrapper,
+} from '..';
 
 export * from './send';
 
@@ -17,7 +23,7 @@ export function getRouter() {
   router.use(logging);
   router.use(express.json());
   router.use(express.urlencoded({ extended: true }));
-  router.use('/send', getSendRouter());
+  router.use('/send', AccessKeyMiddleware(), getSendRouter());
   router.get(
     '/',
     Wrapper(async (_req, res) => {

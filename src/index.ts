@@ -2,6 +2,7 @@ import serverless from 'serverless-http';
 import { getRouter } from '.';
 
 export * from './controllers';
+export * from './middlewares';
 export * from './routes';
 export * from './tools';
 

@@ -78,3 +78,15 @@ model ProviderModel {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 }
+
+model AccessKeyModel {
+  accessKeyId String @id @default(uuid())
+  secretAccessKey String @default(uuid())
+
+  name String
+  description String @default("")
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+}

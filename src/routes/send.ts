@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { Provider } from '../controllers';
-import { OPCODE, Wrapper } from '../tools';
+import { OPCODE, Provider, Wrapper } from '..';
 
 export function getSendRouter() {
   const router = Router();

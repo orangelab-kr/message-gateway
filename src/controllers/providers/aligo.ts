@@ -1,7 +1,7 @@
 import {
   AlimtalkButtonModel,
   AlimtalkButtonType,
-  Prisma
+  Prisma,
 } from '@prisma/client';
 import got, { Agents, Got } from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
@@ -54,7 +54,7 @@ export interface AligoKakaoTokenResult {
 }
 
 export interface AligoSMSResult {
-  result_code: number;
+  result_code: string;
   message: string;
   msg_id: number;
   success_cnt: number;
@@ -142,7 +142,7 @@ export class AligoProvider implements ProviderInterface {
     }));
   }
 
-  public async sendMessage(props: {
+  public sendMessage(props: {
     phone: string;
     template: TemplateIncluded;
   }): Promise<boolean> {
@@ -222,6 +222,6 @@ export class AligoProvider implements ProviderInterface {
         testmode_yn: 'N',
       },
     }).json<AligoSMSResult>();
-    return res.result_code === 0;
+    return res.result_code === '1';
   }
 }

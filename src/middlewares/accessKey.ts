@@ -1,5 +1,4 @@
-import { Callback, InternalError, OPCODE, Wrapper } from '..';
-import { AccessKey } from '../controllers/accessKey';
+import { AccessKey, Callback, InternalError, OPCODE, Wrapper } from '..';
 
 export function AccessKeyMiddleware(): Callback {
   return Wrapper(async (req, res, next) => {

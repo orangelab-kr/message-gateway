@@ -64,7 +64,7 @@ export class Provider {
       alimtalk.message = await liquid.parseAndRender(alimtalk.message, fields);
     }
 
-    const isSuccess = providerClass.sendMessage({ phone, template });
+    const isSuccess = await providerClass.sendMessage({ phone, template });
     if (!isSuccess) throw new InternalError('메시지를 전송하지 못했습니다.');
   }
 

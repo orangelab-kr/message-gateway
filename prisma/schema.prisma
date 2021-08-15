@@ -33,6 +33,7 @@ model AlimtalkModel {
   buttons  AlimtalkButtonModel[]
   template TemplateModel?
 
+  properties Json?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

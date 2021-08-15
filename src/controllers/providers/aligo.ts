@@ -163,6 +163,7 @@ export class AligoProvider implements ProviderInterface {
     const subject = '메세지가 도착했습니다.';
     const hasFailover = message ? 'Y' : 'N';
     const phone = `0${props.phone.substr(3)}`;
+    const { templateId } = <any>alimtalk.properties;
     const button = JSON.stringify({
       button: AligoProvider.transferButtons(alimtalk.buttons),
     });
@@ -188,7 +189,7 @@ export class AligoProvider implements ProviderInterface {
 
         receiver_1: phone,
         button_1: button,
-        tpl_code: 'TE_9778',
+        tpl_code: templateId,
 
         // Options
         failover: hasFailover,

@@ -120,7 +120,6 @@ export class AligoProvider implements ProviderInterface {
       url: `${this.kakaoEndpoint}/token/create/${expiry}/h`,
       form: { apikey: this.apiKey, userid: this.userId },
     }).json<AligoKakaoTokenResult>();
-
     if (res.code !== 0) throw Error(`오류가 발생하였습니다.`);
     if (!res.token) throw Error('서버에서 토큰을 반환하지 않았습니다.');
     setTimeout(() => (this.token = null), expiry * 3600 * 900);

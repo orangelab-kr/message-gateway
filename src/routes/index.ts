@@ -1,44 +1,25 @@
-import express from 'express';
-import morgan from 'morgan';
-import os from 'os';
+import { Router } from 'express';
 import {
   AccessKeyMiddleware,
+  clusterInfo,
   getSendRouter,
-  InternalError,
-  logger,
   OPCODE,
   Wrapper,
 } from '..';
 
 export * from './send';
 
-export function getRouter() {
-  const router = express();
+export function getRouter(): Router {
+  const router = Router();
 
-  const hostname = os.hostname();
-  const logging = morgan('common', {
-    stream: { write: (str: string) => logger.info(`${str.trim()}`) },
-  });
-
-  router.use(logging);
-  router.use(express.json());
-  router.use(express.urlencoded({ extended: true }));
   router.use('/send', AccessKeyMiddleware(), getSendRouter());
   router.get(
     '/',
     Wrapper(async (_req, res) => {
       res.json({
         opcode: OPCODE.SUCCESS,
-        mode: process.env.NODE_ENV,
-        cluster: hostname,
+        ...clusterInfo,
       });
-    })
-  );
-
-  router.all(
-    '*',
-    Wrapper(async () => {
-      throw new InternalError('Invalid API', 404);
     })
   );
 

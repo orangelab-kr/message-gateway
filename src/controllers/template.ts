@@ -5,9 +5,8 @@ import {
   ProviderModel,
   TemplateModel,
 } from '@prisma/client';
-import { $$$, Database, InternalError, OPCODE } from '../tools';
+import { $$$, prisma, RESULT } from '..';
 
-const { prisma } = Database;
 export type TemplateIncluded = TemplateModel & {
   alimtalk?: AlimtalkModel & { buttons: AlimtalkButtonModel[] };
   provider: ProviderModel;
@@ -31,12 +30,11 @@ export class Template {
       }) as Prisma.Prisma__TemplateModelClient<TemplateIncluded | null>;
   }
 
-  public static async getTemplateOrThrow(templateId: string) {
+  public static async getTemplateOrThrow(
+    templateId: string
+  ): Promise<TemplateIncluded> {
     const template = await $$$(Template.getTemplate(templateId));
-    if (!template) {
-      throw new InternalError('템플릿을 찾을 수 없습니다.', OPCODE.NOT_FOUND);
-    }
-
+    if (!template) throw RESULT.CANNOT_FIND_TEMPLATE();
     return template;
   }
 
@@ -52,12 +50,11 @@ export class Template {
       }) as Prisma.Prisma__TemplateModelClient<TemplateIncluded | null>;
   }
 
-  public static async getTemplateByNameOrThrow(name: string) {
+  public static async getTemplateByNameOrThrow(
+    name: string
+  ): Promise<TemplateIncluded> {
     const template = await $$$(Template.getTemplateByName(name));
-    if (!template) {
-      throw new InternalError('템플릿을 찾을 수 없습니다.', OPCODE.NOT_FOUND);
-    }
-
+    if (!template) throw RESULT.CANNOT_FIND_TEMPLATE();
     return template;
   }
 }

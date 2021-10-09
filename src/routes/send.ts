@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { OPCODE, Provider, Wrapper } from '..';
+import { Provider, RESULT, Wrapper } from '..';
 
 export function getSendRouter(): Router {
   const router = Router();
 
   router.post(
     '/',
-    Wrapper(async (req, res) => {
+    Wrapper(async (req) => {
       await Provider.sendMessage(req.body);
-      res.json({ opcode: OPCODE.SUCCESS });
+      throw RESULT.SUCCESS();
     })
   );
 

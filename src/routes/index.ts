@@ -3,7 +3,7 @@ import {
   AccessKeyMiddleware,
   clusterInfo,
   getSendRouter,
-  OPCODE,
+  RESULT,
   Wrapper,
 } from '..';
 
@@ -16,10 +16,7 @@ export function getRouter(): Router {
   router.get(
     '/',
     Wrapper(async (_req, res) => {
-      res.json({
-        opcode: OPCODE.SUCCESS,
-        ...clusterInfo,
-      });
+      throw RESULT.SUCCESS({ details: clusterInfo });
     })
   );
 

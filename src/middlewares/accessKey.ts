@@ -1,6 +1,6 @@
-import { AccessKey, Callback, InternalError, OPCODE, Wrapper } from '..';
+import { AccessKey, RESULT, Wrapper, WrapperCallback } from '..';
 
-export function AccessKeyMiddleware(): Callback {
+export function AccessKeyMiddleware(): WrapperCallback {
   return Wrapper(async (req, res, next) => {
     const {
       'x-message-gateway-access-key-id': accessKeyId,
@@ -11,10 +11,7 @@ export function AccessKeyMiddleware(): Callback {
       typeof accessKeyId !== 'string' ||
       typeof secretAccessKey !== 'string'
     ) {
-      throw new InternalError(
-        '액세스 키가 올바르지 않습니다.',
-        OPCODE.INVALID_ACCESS_KEY
-      );
+      throw RESULT.CANNOT_FIND_ACCESS_KEY();
     }
 
     const accessKey = await AccessKey.getAccessKeyOrThrow(

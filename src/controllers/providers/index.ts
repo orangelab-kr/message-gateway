@@ -5,12 +5,7 @@ import {
 } from '@prisma/client';
 import Joi from 'joi';
 import { Liquid } from 'liquidjs';
-import {
-  AligoProvider,
-  InternalError,
-  Template,
-  TemplateIncluded,
-} from '../..';
+import { AligoProvider, RESULT, Template, TemplateIncluded } from '../..';
 
 export * from './aligo';
 
@@ -65,7 +60,7 @@ export class Provider {
     }
 
     const isSuccess = await providerClass.sendMessage({ phone, template });
-    if (!isSuccess) throw new InternalError('메시지를 전송하지 못했습니다.');
+    if (!isSuccess) throw RESULT.FAILED_SEND_MESSAGE();
   }
 
   private static renderButtons(

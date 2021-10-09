@@ -1,7 +1,5 @@
 import { AccessKeyModel, Prisma } from '@prisma/client';
-import { $$$, Database, InternalError, Joi, OPCODE } from '../tools';
-
-const { prisma } = Database;
+import { $$$, Joi, prisma, RESULT } from '..';
 
 export class AccessKey {
   public static async createAccessKey(props: {
@@ -41,13 +39,7 @@ export class AccessKey {
       AccessKey.getAccessKey(accessKeyId, secretAccessKey)
     );
 
-    if (!accessKey) {
-      throw new InternalError(
-        '액세스 키가 올바르지 않습니다.',
-        OPCODE.INVALID_ACCESS_KEY
-      );
-    }
-
+    if (!accessKey) throw RESULT.CANNOT_FIND_ACCESS_KEY();
     return accessKey;
   }
 }

@@ -10,10 +10,6 @@ import { AligoProvider, RESULT, Template, TemplateIncluded } from '../..';
 export * from './aligo';
 
 const liquid = new Liquid();
-export interface ProviderConstructor {
-  new (props: any): ProviderInterface;
-}
-
 export interface ProviderInterface {
   sendMessage(props: {
     phone: string;

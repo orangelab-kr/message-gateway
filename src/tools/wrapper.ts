@@ -4,7 +4,7 @@ import i18n from 'i18n';
 import { logger, RESULT } from '.';
 
 i18n.configure({
-  defaultLocale: 'en',
+  defaultLocale: 'ko',
   locales: ['en', 'ko'],
   directory: 'locales',
   queryParameter: 'lang',
@@ -57,11 +57,25 @@ export class WrapperResult extends Error {
 
 export function Wrapper(cb: WrapperCallback): WrapperCallback {
   return async (req: Request, res: Response, next: NextFunction) => {
-    return cb(req, res, next).catch((err) => {
+    try {
+      return await cb(req, res, next);
+    } catch (err: any) {
       let eventId: string | undefined;
       let result: WrapperResult | undefined;
 
       if (err.name === 'Result') result = err;
+      if (err.name === 'InternalError') {
+        const { opcode, message, eventId, statusCode, details } = err;
+        res.status(statusCode || 500).json({
+          opcode,
+          eventId,
+          message,
+          ...details,
+        });
+
+        return;
+      }
+
       if (err.name === 'ValidationError') {
         const { details } = err;
         result = RESULT.FAILED_VALIDATE({ details: { details } });
@@ -89,6 +103,6 @@ export function Wrapper(cb: WrapperCallback): WrapperCallback {
         message,
         ...details,
       });
-    });
+    }
   };
 }

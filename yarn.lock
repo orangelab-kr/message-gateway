@@ -3282,6 +3282,15 @@ fs-constants@^1.0.0:
   resolved "https://registry.yarnpkg.com/fs-constants/-/fs-constants-1.0.0.tgz#6be0de9be998ce16af8afc24497b9ee9b7ccd9ad"
   integrity sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==
 
+fs-extra@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.0.tgz#9ff61b655dde53fb34a82df84bb214ce802e17c1"
+  integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
 fs-extra@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
@@ -5911,6 +5920,14 @@ serverless-offline@^8.3.1:
     update-notifier "^5.1.0"
     velocityjs "^2.0.5"
     ws "^7.5.6"
+
+serverless-webpack-prisma@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/serverless-webpack-prisma/-/serverless-webpack-prisma-1.0.5.tgz#44f16092491d8bab6bc9bf6f34984b6640c56a88"
+  integrity sha512-5+UMxEoRXFheXlzDaeKd41Ez6WSHD62DoUq7+Ema5SEm0/sESGxW+gCHBkIAzxleYv5ThGI6yYkAwSngFdw30A==
+  dependencies:
+    fast-glob "^3.2.7"
+    fs-extra "^10.0.0"
 
 serverless-webpack@^5.6.0:
   version "5.6.0"

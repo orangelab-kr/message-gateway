@@ -161,7 +161,7 @@ export class AligoProvider implements ProviderInterface {
     await this.getToken();
     const subject = '메세지가 도착했습니다.';
     const hasFailover = message ? 'Y' : 'N';
-    const phone = `0${props.phone.substring(0, 3)}`;
+    const phone = `0${props.phone.substring(3)}`;
     const { templateId } = <any>alimtalk.properties;
     const button = JSON.stringify({
       button: AligoProvider.transferButtons(alimtalk.buttons),
@@ -204,7 +204,7 @@ export class AligoProvider implements ProviderInterface {
   }): Promise<boolean> {
     const { template } = props;
     if (!template.message) return false;
-    const phone = `0${props.phone.substring(0, 3)}`;
+    const phone = `0${props.phone.substring(3)}`;
     const res = await this.got({
       method: 'POST',
       url: `${this.smsEndpoint}/send`,

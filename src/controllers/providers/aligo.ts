@@ -3,9 +3,10 @@ import {
   AlimtalkButtonType,
   Prisma,
 } from '@prisma/client';
-import got, { Agents, Got } from 'got';
+import got, { Agents, Got, OptionsOfJSONResponseBody } from 'got';
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import { ProviderInterface, TemplateIncluded } from '..';
+import { logger } from '../../tools';
 
 export type AligoButtonType = 'DS' | 'WL' | 'AL' | 'BK' | 'MD';
 export type AligoButtonTypeName =
@@ -167,7 +168,7 @@ export class AligoProvider implements ProviderInterface {
       button: AligoProvider.transferButtons(alimtalk.buttons),
     });
 
-    const res = await this.got({
+    const req: OptionsOfJSONResponseBody = {
       method: 'POST',
       url: `${this.kakaoEndpoint}/alimtalk/send`,
       form: {
@@ -194,7 +195,11 @@ export class AligoProvider implements ProviderInterface {
         failover: hasFailover,
         testmode_yn: 'N',
       },
-    }).json<AligoKakaoResult>();
+    };
+
+    logger.info(`Aligo / 신규 메세지 요청: ${JSON.stringify(req)}`);
+    const res = await this.got(req).json<AligoKakaoResult>();
+    logger.info(`Aligo / 신규 메세지 응답: ${JSON.stringify(res)}`);
     return res.code === 0;
   }
 
@@ -205,7 +210,7 @@ export class AligoProvider implements ProviderInterface {
     const { template } = props;
     if (!template.message) return false;
     const phone = `0${props.phone.substring(3)}`;
-    const res = await this.got({
+    const req: OptionsOfJSONResponseBody = {
       method: 'POST',
       url: `${this.smsEndpoint}/send`,
       form: {
@@ -221,7 +226,11 @@ export class AligoProvider implements ProviderInterface {
         // Options
         testmode_yn: 'N',
       },
-    }).json<AligoSMSResult>();
+    };
+
+    logger.info(`Aligo / 신규 메세지 요청: ${JSON.stringify(req)}`);
+    const res = await this.got(req).json<AligoSMSResult>();
+    logger.info(`Aligo / 신규 메세지 응답: ${JSON.stringify(res)}`);
     return res.result_code === '1';
   }
 }
